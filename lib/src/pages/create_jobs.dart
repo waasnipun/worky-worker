@@ -1,10 +1,14 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_cupertino_date_picker/flutter_cupertino_date_picker.dart';
+import 'package:flutter_smart_course/src/helper/image_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_course/src/theme/color/light_color.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+
 class CreateJob extends StatelessWidget {
   CreateJob({Key key}) : super(key: key);
   double width;
@@ -119,11 +123,6 @@ class CreateJob extends StatelessWidget {
         );
     }
 
-  @override
-  State<StatefulWidget> createState() {
-    // TODO: implement createState
-    return null;
-  }
 }
 
 class MyCustomForm extends StatefulWidget {
@@ -150,8 +149,23 @@ class MyCustomFormState extends State<MyCustomForm> {
   TextEditingController _jobMobileNumber = TextEditingController(text: "");
   TextEditingController _jobEmail = TextEditingController(text: "");
   TextEditingController _userID = TextEditingController(text: "");
-
+  List<Object> images = List<Object>();
+  Future<File> _imageFile;
+  File tmpFile;
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      images.add("Add Image");
+      images.add("Add Image");
+      images.add("Add Image");
+    });
+  }
   insertData() async{
+    print("imagefile");
+    ImageUploadModel firstImage = images[0];
+    String _imageOne =  base64Encode(firstImage.imageFile.readAsBytesSync());
+    print(_imageOne);
     String url = "https://worky-flutter.000webhostapp.com/insertData_waas.php";
     String _dateTimeStart = ((_dateTimeStart_.millisecondsSinceEpoch)/1000).toString();
     String _dateTimeFinish = ((_dateTimeFinish_.millisecondsSinceEpoch)/1000).toString();
@@ -166,13 +180,12 @@ class MyCustomFormState extends State<MyCustomForm> {
       "jobDescription":_jobDescription.text,
       "jobMobileNumber":_jobMobileNumber.text,
       "jobEmail":_jobEmail.text,
-      "userID":"23",
+      "imageUrl":_imageOne,
       "dateTimeStart":_dateTimeStart,
       "dateTimeFinish":_dateTimeFinish,
     }
     );
     var responseBody = json.decode(res.body);
-    print(responseBody);
   }
   
 
@@ -184,7 +197,11 @@ class MyCustomFormState extends State<MyCustomForm> {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            _textFields(_jobTitle, _jobType, _jobPrice,_jobLocation,_jobWorkingHours,_jobDescription,_jobMobileNumber,_jobEmail,context),    
+            _titleAndType(_jobTitle, _jobType),
+            SizedBox(height: 20,), 
+            buildGridView(),
+            SizedBox(height: 20,), 
+            _textFields(_jobPrice,_jobLocation,_jobWorkingHours,_jobDescription,_jobMobileNumber,_jobEmail,context), 
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16.0),
                 child: CupertinoButton(
@@ -220,9 +237,97 @@ class MyCustomFormState extends State<MyCustomForm> {
         ),
     );
   }
-}
-Widget _textFields(var _jobTitle,var _jobType,var _jobPrice,var _jobLocation,var _jobWorkingHours,var _jobDescription,var _jobMobileNumber,var _jobEmail,BuildContext context){
+
+
+Widget buildGridView() {
     return Container(
+      decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: new BorderRadius.circular(10.0),
+          ),
+      padding: const EdgeInsets.all(8.0),
+        child:Column(
+          children: <Widget>[ 
+            Align(
+                  alignment:Alignment.center,
+                  child:Text(
+                    "-----------  Upload Gig Images  -----------",                      
+                    ),),
+                SizedBox(height: 15),       
+            GridView.count(
+            shrinkWrap: true,
+            crossAxisCount: 3,
+            childAspectRatio: 1,
+            children: List.generate(images.length, (index) {
+              if (images[index] is ImageUploadModel) {
+                ImageUploadModel uploadModel = images[index];
+                return Card(
+                  clipBehavior: Clip.antiAlias,
+                  child: Stack(
+                    children: <Widget>[
+                    Image.file(
+                        uploadModel.imageFile,
+                        width: 300,
+                        height: 300,
+                      ),
+                      Positioned(
+                        right: 5,
+                        top: 5,
+                        child: InkWell(
+                          child: Icon(
+                            Icons.remove_circle,
+                            size: 20,
+                            color: Colors.red,
+                          ),
+                          onTap: () {
+                            setState(() {
+                              images.replaceRange(index, index + 1, ['Add Image']);
+                            });
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              } else {
+                return Card(
+                  child: IconButton(
+                    icon: Icon(Icons.add),
+                    onPressed: () {
+                      _onAddImageClick(index);
+                    },
+                  ),
+                );
+              }
+            }),
+      )]));
+  }
+
+   Future _onAddImageClick(int index) async {
+
+        setState(() {
+          _imageFile = ImagePicker.pickImage(source: ImageSource.gallery);
+          getFileImage(index);
+        });
+          }
+
+  void getFileImage(int index) async {
+        //    var dir = await path_provider.getTemporaryDirectory();
+        _imageFile.then((file) async {
+          setState(() {
+            ImageUploadModel imageUpload = new ImageUploadModel();
+            imageUpload.isUploaded = false;
+            imageUpload.uploading = false;
+            imageUpload.imageFile = file;
+            imageUpload.imageUrl = '';
+            images.replaceRange(index, index + 1, [imageUpload]);
+          });
+        });
+      }
+}
+
+Widget _titleAndType(var _jobTitle,var _jobType){
+  return Container(
       decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: new BorderRadius.circular(10.0),
@@ -237,6 +342,7 @@ Widget _textFields(var _jobTitle,var _jobType,var _jobPrice,var _jobLocation,var
                 ),),
             SizedBox(height: 15),
             TextFormField(
+                textCapitalization: TextCapitalization.words,
                 textInputAction: TextInputAction.next,
                 style: TextStyle(
                     fontSize: 20,
@@ -267,11 +373,13 @@ Widget _textFields(var _jobTitle,var _jobType,var _jobPrice,var _jobLocation,var
                   return null;
                 },
               ),
+
             SizedBox(height: 10),
             Material(
               borderRadius: new BorderRadius.circular(8.0),
               color: Colors.white,
               child:TextFormField(
+                    textCapitalization: TextCapitalization.words,
                     textInputAction: TextInputAction.next,
                     controller: _jobType,
                     decoration: InputDecoration(
@@ -298,18 +406,31 @@ Widget _textFields(var _jobTitle,var _jobType,var _jobPrice,var _jobLocation,var
                     },
                 )),
             SizedBox(height: 20),
+          ],
+        ),
+    );        
+}
+Widget _textFields(var _jobPrice,var _jobLocation,var _jobWorkingHours,var _jobDescription,var _jobMobileNumber,var _jobEmail,BuildContext context){
+    return Container(
+      decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: new BorderRadius.circular(10.0),
+          ),
+      padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: <Widget>[
             Align(
               alignment:Alignment.center,
               child:Text(
                 "-----------  Select the Date  -----------",                      
                 ),),
-            SizedBox(height: 15),
-            Align(
-              alignment:Alignment.center,
-              child:Text(
-                "From",  
-                 style: TextStyle(color: Colors.black38),                   
-                ),),
+            // SizedBox(height: 15),
+            // Align(
+            //   alignment:Alignment.center,
+            //   child:Text(
+            //     "From",  
+            //      style: TextStyle(color: Colors.black38),                   
+            //     ),),
             SizedBox(height: 10),
             SizedBox(
               height: 100,       
@@ -327,28 +448,28 @@ Widget _textFields(var _jobTitle,var _jobType,var _jobPrice,var _jobLocation,var
                 ),
             ), 
             SizedBox(height: 10),
-            Align(
-              alignment:Alignment.center,
-              child:Text(
-                "To",    
-                style: TextStyle(color: Colors.black38),                        
-                ),),
-            SizedBox(height: 10),
-            SizedBox(
-              height: 100,       
-              child: CupertinoDatePicker(
-                initialDateTime: _dateTimeFinish_,
-                mode: CupertinoDatePickerMode.date,
-                use24hFormat: true,
-                onDateTimeChanged: (dateTime){
-                  _dateTimeFinish_ = dateTime;
-                  // print(_dateTime);
-                  // setState((){
-                  //   _dateTime=dateTime;
-                  // });
-                },
-                ),
-            ), 
+            // Align(
+            //   alignment:Alignment.center,
+            //   child:Text(
+            //     "To",    
+            //     style: TextStyle(color: Colors.black38),                        
+            //     ),),
+            // SizedBox(height: 10),
+            // SizedBox(
+            //   height: 100,       
+            //   child: CupertinoDatePicker(
+            //     initialDateTime: _dateTimeFinish_,
+            //     mode: CupertinoDatePickerMode.date,
+            //     use24hFormat: true,
+            //     onDateTimeChanged: (dateTime){
+            //       _dateTimeFinish_ = dateTime;
+            //       // print(_dateTime);
+            //       // setState((){
+            //       //   _dateTime=dateTime;
+            //       // });
+            //     },
+            //     ),
+            // ), 
             SizedBox(height: 20),
             Align(
               alignment:Alignment.center,
@@ -360,6 +481,7 @@ Widget _textFields(var _jobTitle,var _jobType,var _jobPrice,var _jobLocation,var
               borderRadius: new BorderRadius.circular(8.0),
               color: Colors.white,
               child:TextFormField(
+                    textCapitalization: TextCapitalization.words,
                     textInputAction: TextInputAction.next,
                     controller: _jobPrice,
                     decoration: InputDecoration(
@@ -393,6 +515,7 @@ Widget _textFields(var _jobTitle,var _jobType,var _jobPrice,var _jobLocation,var
               borderRadius: new BorderRadius.circular(8.0),
               color: Colors.white,
               child:TextFormField(
+                    textCapitalization: TextCapitalization.words,
                     textInputAction: TextInputAction.next,
                     controller: _jobLocation,
                     decoration: InputDecoration(
@@ -427,6 +550,7 @@ Widget _textFields(var _jobTitle,var _jobType,var _jobPrice,var _jobLocation,var
               borderRadius: new BorderRadius.circular(8.0),
               color: Colors.white,
               child:TextFormField(
+                    textCapitalization: TextCapitalization.words,
                     keyboardType: TextInputType.multiline,
                     maxLines:4,
                     textInputAction: TextInputAction.next,
@@ -466,6 +590,7 @@ Widget _textFields(var _jobTitle,var _jobType,var _jobPrice,var _jobLocation,var
               borderRadius: new BorderRadius.circular(8.0),
               color: Colors.white,
               child:TextFormField(
+                    textCapitalization: TextCapitalization.words,
                     controller: _jobMobileNumber,
                     textInputAction: TextInputAction.next,
                     decoration: InputDecoration(
@@ -502,6 +627,7 @@ Widget _textFields(var _jobTitle,var _jobType,var _jobPrice,var _jobLocation,var
               borderRadius: new BorderRadius.circular(8.0),
               color: Colors.white,
               child:TextFormField(
+                    textCapitalization: TextCapitalization.words,
                     controller: _jobEmail,
                     textInputAction: TextInputAction.send,
                     decoration: InputDecoration(
@@ -544,4 +670,5 @@ Widget _textFields(var _jobTitle,var _jobType,var _jobPrice,var _jobLocation,var
               ],
             ),
           );
-        }
+}
+

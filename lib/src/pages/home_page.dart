@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_course/src/helper/quad_clipper.dart';
+import 'package:flutter_smart_course/src/pages/Show_Job_Details.dart';
 import 'package:flutter_smart_course/src/pages/job_details.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_smart_course/src/theme/color/light_color.dart';
@@ -18,6 +19,7 @@ class _HomePageState extends State<HomePage> {
   ScrollController _scrollController = ScrollController();
   double width;
   int items;
+  String displayImage;
   @override
   void initState() {
     super.initState();
@@ -30,10 +32,11 @@ class _HomePageState extends State<HomePage> {
     var temp = List();
     var res = await http.get(Uri.encodeFull(url),headers:{"Accept":"application/json"});
     List responseBody;
-    responseBody = (json.decode(res.body));    
+    responseBody = (json.decode(res.body));
+    print(responseBody);    
     for(var i in responseBody){
-        print(i);
-        if(i['jobLocation']=='Gampaha'){
+        if(i['jobLocation']=='Gampaha' || i['jobLocation']=='gampaha'){
+          i['jobLocation']=='Gampaha';
           main.add(i);
         }
         else{
@@ -260,6 +263,7 @@ class _HomePageState extends State<HomePage> {
                       itemCount: snap.length,
                       controller: _scrollController,
                       itemBuilder: (context,index){
+                        var _bytesImage = Base64Decoder().convert("${snap[index]['imageUrl']}");
                         return Container(
                           alignment: Alignment.center,
                             child: Card(       
@@ -270,9 +274,9 @@ class _HomePageState extends State<HomePage> {
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 mainAxisSize: MainAxisSize.min,
                                 children: <Widget>[                                  
-                                _courceInfo("${snap[index]['JobID']}","${snap[index]['jobTitle']}","${snap[index]['jobType']}","${snap[index]['jobDescription']}","${snap[index]['jobPrice']}\$","${snap[index]['jobLocation']}","${snap[index]['jobMobileNumber']}","${snap[index]['jobEmail']}",context,
-                                      _decorationContainerC(),
-                                      background: LightColor.lightBlue),     
+                                    _courceInfo("${snap[index]['JobID']}","${snap[index]['jobTitle']}","${snap[index]['jobType']}","${snap[index]['jobDescription']}","${snap[index]['jobPrice']}\$","${snap[index]['jobLocation']}","${snap[index]['jobMobileNumber']}","${snap[index]['jobEmail']}","${snap[index]['dateTimeStart']}",context,
+                                    _decorationContainerC(_bytesImage),_bytesImage,
+                                    background: Colors.white),     
                                   // ButtonTheme.bar(
                                   //   child: ButtonBar(
                                   //     children: <Widget>[
@@ -305,12 +309,12 @@ class _HomePageState extends State<HomePage> {
 
   Widget _card(
       {Color primaryColor = Colors.redAccent,
-      String imgPath,
+      var imgPath,
       Widget backWidget}) {
     return Container(
-        height: 190,
+        height: 170,
         width: width * .34,
-        margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        margin: EdgeInsets.symmetric(horizontal: 4, vertical: 10),
         decoration: BoxDecoration(
             color: primaryColor,
             borderRadius: BorderRadius.all(Radius.circular(25)),
@@ -322,11 +326,11 @@ class _HomePageState extends State<HomePage> {
             ]),
         child: ClipRRect(
           borderRadius: BorderRadius.all(Radius.circular(25)),
-          child: backWidget,
+          child: Image.memory(imgPath,width: 400,height: 800,scale: 0.001,),
         ));
   }
 
-  Widget _courceInfo(var jobID,var jobTitle,var jobType,var jobDescription,var jobPrice,var jobDistrict,var jobMobile,var jobEmail,BuildContext context, Widget decoration, {Color background}) {
+  Widget _courceInfo(var jobID,var jobTitle,var jobType,var jobDescription,var jobPrice,var jobDistrict,var jobMobile,var jobEmail,var dateStart,BuildContext context, Widget decoration,var imageOne, {Color background}) {
     return Container(
         height: 160,
         width: width - 20,
@@ -334,7 +338,7 @@ class _HomePageState extends State<HomePage> {
           children: <Widget>[
             AspectRatio(
               aspectRatio: .7,
-              child: _card(primaryColor: background, backWidget: decoration),
+              child: _card(primaryColor: background, backWidget: decoration,imgPath: imageOne),
             ),
             SizedBox(width: 7),
             Expanded(
@@ -401,7 +405,7 @@ class _HomePageState extends State<HomePage> {
                       icon: Icon(Icons.arrow_forward_ios, color: Colors.black54),
                       iconSize: 20.0,
                       onPressed: () {
-                        Navigator.of(context).push(_createRoute_details(jobID,jobTitle,jobType,jobPrice,jobDistrict,jobDescription,jobMobile,jobEmail));
+                        Navigator.of(context).push(_createRoute_details(jobID,jobTitle,jobType,jobPrice,jobDistrict,jobDescription,jobMobile,jobEmail,imageOne,dateStart));
                         },
                       ),
                       SizedBox(width: 10)                          
@@ -414,9 +418,10 @@ class _HomePageState extends State<HomePage> {
           ],
         ));
   }
-Route _createRoute_details(String jobID, String s, String s1, String s2, String s3, String s4, String s5, String s6) {
+Route _createRoute_details(String jobID, String s, String s1, String s2, String s3, String s4, String s5, String s6, var imageOne,var dateStart) {
   return PageRouteBuilder(
-    pageBuilder: (context, animation, secondaryAnimation) => JobDetails(jobID,s, s1,  s2,  s3,  s4,  s5,  s6),
+    // pageBuilder: (context, animation, secondaryAnimation) => JobDetails(jobID,s, s1,  s2,  s3,  s4,  s5,  s6),
+    pageBuilder: (context, animation, secondaryAnimation) => ShowJobDetails(jobID,s, s1,  s2,  s3,  s4,  s5,  s6, imageOne , dateStart),
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       var begin = Offset(0.0, 1.0);
       var end = Offset.zero;
@@ -506,29 +511,34 @@ Route _createRoute_details(String jobID, String s, String s1, String s2, String 
     );
   }
 
-  Widget _decorationContainerC() {
+  Widget _decorationContainerC(var _image) {
     return Stack(
       children: <Widget>[
-        Positioned(
-          bottom: -65,
-          left: -35,
-          child: CircleAvatar(
-            radius: 70,
-            backgroundColor: Color(0xfffeeaea),
-          ),
-        ),
-        Positioned(
-            bottom: -30,
-            right: -25,
-            child: ClipRect(
-                clipper: QuadClipper(),
-                child: CircleAvatar(
-                    backgroundColor: LightColor.yellow, radius: 40))),
-        _smallContainer(
-          Colors.yellow,
-          35,
-          70,
-        ),
+  
+        
+            
+            
+          
+        // Positioned(
+        //   bottom: -65,
+        //   left: -35,
+        //   child: CircleAvatar(
+        //     radius: 70,
+        //     backgroundColor: Color(0xfffeeaea),
+        //   ),
+        // ),
+        // Positioned(
+        //     bottom: -30,
+        //     right: -25,
+        //     child: ClipRect(
+        //         clipper: QuadClipper(),
+        //         child: CircleAvatar(
+        //             backgroundColor: LightColor.yellow, radius: 40))),
+        // _smallContainer(
+        //   Colors.yellow,
+        //   35,
+        //   70,
+        // ),
       ],
     );
   }

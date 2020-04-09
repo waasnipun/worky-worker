@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_smart_course/src/theme/color/light_color.dart';
 
 class JobDetails extends StatelessWidget {
-  String _jobTitle ;
+String _jobTitle ;
 String _jobType;
 String _jobPrice ;
 String _jobLocation ;

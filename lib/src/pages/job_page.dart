@@ -14,8 +14,6 @@ class JobsPage extends StatelessWidget {
     String url = "https://worky-flutter.000webhostapp.com/getData_waas.php";
     var res = await http.get(Uri.encodeFull(url),headers:{"Accept":"application/json"});
     var responseBody = json.decode(res.body);
-    print("json decode");
-    print(responseBody);
     return responseBody;
   }
   
