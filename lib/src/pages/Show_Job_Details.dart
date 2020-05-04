@@ -4,19 +4,10 @@ import 'package:flutter_smart_course/src/theme/design_course.dart';
 import 'package:flutter_smart_course/src/theme/theme.dart';
 
 class ShowJobDetails extends StatelessWidget {
-String _jobTitle ;
-String _jobType;
-String _jobPrice ;
-String _jobLocation ;
-String _jobStart ;
-String _jobDescription ;
-String _jobMobileNumber;
-String _jobEmail ;
-String _userID ;
-String jobTit;
+
+var snap;
 var imageOne;
-String jobId,jobTitle;
-ShowJobDetails(this.jobId, this.jobTitle, this._jobType, this._jobPrice, this._jobLocation, this._jobDescription, this._jobMobileNumber,this._jobEmail, this.imageOne,this._jobStart, {Key key}) : super(key: key);
+ShowJobDetails(this.snap, this.imageOne, {Key key}) : super(key: key);
 
 
 @override
@@ -30,7 +21,7 @@ ShowJobDetails(this.jobId, this.jobTitle, this._jobType, this._jobPrice, this._j
                   child: Container(
                     child: Column(
                       children: <Widget>[
-                      imageContainer(context,this.jobTitle,this.imageOne),
+                      imageContainer(context,"${snap['jobTitle']}",this.imageOne),
                       
                       ],
                     ),
@@ -101,7 +92,7 @@ Widget _buildBottomNavigationBar(BuildContext context) {
                   ),
                   
                   Text(
-                    _jobPrice,
+                    "${snap['jobPrice']}\$",
                     style: TextStyle(color: Colors.black54,fontSize: 20),
                   ),
                 ],
@@ -214,7 +205,7 @@ Widget _buildBottomNavigationBar(BuildContext context) {
             child: Image.memory(imgPath),
           ),
             SizedBox(height: 15),
-            getTimeBoxUI(jobTitle,this._jobType,30.0),
+            getTimeBoxUI(jobTitle,"${snap['jobType']}",30.0),
             // Text(jobTitle,
             //   style: TextStyle(
             //       color: DesignCourseAppTheme.nearlyBlue,
@@ -235,11 +226,11 @@ Widget _buildBottomNavigationBar(BuildContext context) {
               children: <Widget>[
                 // getTimeBoxUI("DN", 'Day/Night'),
                 getTimeBoxUI("Seller",'UserName',12.0),
-                getTimeBoxUI( 'Date',_jobStart,12.0),
-                getTimeBoxUI('Location', _jobLocation,12.0),
+                getTimeBoxUI( 'Date',"${snap['dateTimeStart']}",12.0),
+                getTimeBoxUI('Location', "${snap['jobLocation']}",12.0),
               ],
             ),
-            getTimeBoxUI( "Description",_jobDescription,14.0),
+            getTimeBoxUI( "Description","${snap['jobDescription']}",14.0),
           Divider(color: Colors.black54,indent: 50.0,endIndent: 50.0 ),
           Row(
             mainAxisSize: MainAxisSize.max,
@@ -247,8 +238,8 @@ Widget _buildBottomNavigationBar(BuildContext context) {
             mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 // getTimeBoxUI("DN", 'Day/Night'),
-                getTimeBoxUI("E-mail",_jobEmail,12.0),
-                getTimeBoxUI( 'Voice',_jobMobileNumber,12.0),
+                getTimeBoxUI("E-mail","${snap['jobEmail']}",12.0),
+                getTimeBoxUI( 'Voice',"${snap['jobMobileNumber']}",12.0),
               ],
             ),
         ],

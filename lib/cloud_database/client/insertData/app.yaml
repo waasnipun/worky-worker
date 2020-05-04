@@ -1,0 +1,13 @@
+runtime: php
+service: worker-insert-data
+env: flex
+runtime_config:
+    document_root: .
+env_variables:
+    APP_LOG: errorlog
+    GOOGLE_STORAGE_BUCKET: "workytest.appspot.com"
+    MYSQL_USER: "worky-waas"
+    MYSQL_PASSWORD: "worky123"
+    MYSQL_DSN: "mysql:dbname=worker;unix_socket=/cloudsql/workytest:asia-south1:workytestsql"
+beta_settings:
+    cloud_sql_instances: "workytest:asia-south1:workytestsql"

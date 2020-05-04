@@ -27,7 +27,7 @@ class _HomePageState extends State<HomePage> {
   }
   int test = 0;
   getData()async{
-    String url = "https://worky-flutter.000webhostapp.com/getData_waas.php";
+    String url = "https://worker-dot-workytest.el.r.appspot.com/";
     var main = List();
     var temp = List();
     var res = await http.get(Uri.encodeFull(url),headers:{"Accept":"application/json"});
@@ -274,7 +274,7 @@ class _HomePageState extends State<HomePage> {
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 mainAxisSize: MainAxisSize.min,
                                 children: <Widget>[                                  
-                                    _courceInfo("${snap[index]['JobID']}","${snap[index]['jobTitle']}","${snap[index]['jobType']}","${snap[index]['jobDescription']}","${snap[index]['jobPrice']}\$","${snap[index]['jobLocation']}","${snap[index]['jobMobileNumber']}","${snap[index]['jobEmail']}","${snap[index]['dateTimeStart']}",context,
+                                    _courceInfo(snap[index],context,
                                     _decorationContainerC(_bytesImage),_bytesImage,
                                     background: Colors.white),     
                                   // ButtonTheme.bar(
@@ -330,7 +330,7 @@ class _HomePageState extends State<HomePage> {
         ));
   }
 
-  Widget _courceInfo(var jobID,var jobTitle,var jobType,var jobDescription,var jobPrice,var jobDistrict,var jobMobile,var jobEmail,var dateStart,BuildContext context, Widget decoration,var imageOne, {Color background}) {
+  Widget _courceInfo(var snap,BuildContext context, Widget decoration,var imageOne, {Color background}) {
     return Container(
         height: 160,
         width: width - 20,
@@ -352,7 +352,7 @@ class _HomePageState extends State<HomePage> {
                     mainAxisSize: MainAxisSize.max,
                     children: <Widget>[
                       Expanded(
-                        child: Text(jobTitle,
+                        child: Text("${snap['jobTitle']}",
                             style: TextStyle(
                                 color: LightColor.purple,
                                 fontSize: 17,
@@ -365,7 +365,7 @@ class _HomePageState extends State<HomePage> {
                       SizedBox(
                         width: 4,
                       ),
-                      Text(jobPrice,
+                      Text("${snap['jobPrice']} \$",
                           style: TextStyle(
                             color: LightColor.black,
                             fontSize: 16,
@@ -374,7 +374,7 @@ class _HomePageState extends State<HomePage> {
                     ],
                   ),
                 ),                
-                Text(jobType,
+                Text("${snap['jobType']}",
                   style: AppTheme.h6Style.copyWith(
                     fontSize: 12,
                     color: LightColor.grey,
@@ -382,7 +382,7 @@ class _HomePageState extends State<HomePage> {
                 SizedBox(height: 15),   
                 Container(
                 width: 260,             
-                child:Text(jobDescription,
+                child:Text("${snap['jobDescription']}",
                     softWrap: true,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -396,7 +396,7 @@ class _HomePageState extends State<HomePage> {
                     mainAxisSize: MainAxisSize.max,
                     children: <Widget>[
                       Expanded(
-                        child:_chip(jobDistrict, LightColor.darkOrange, height: 5),
+                        child:_chip("${snap['jobDistrict']}", LightColor.darkOrange, height: 5),
                         ),
                       SizedBox(
                           width: 30,
@@ -405,7 +405,7 @@ class _HomePageState extends State<HomePage> {
                       icon: Icon(Icons.arrow_forward_ios, color: Colors.black54),
                       iconSize: 20.0,
                       onPressed: () {
-                        Navigator.of(context).push(_createRoute_details(jobID,jobTitle,jobType,jobPrice,jobDistrict,jobDescription,jobMobile,jobEmail,imageOne,dateStart));
+                        Navigator.of(context).push(_createRoute_details(snap,imageOne));
                         },
                       ),
                       SizedBox(width: 10)                          
@@ -418,10 +418,10 @@ class _HomePageState extends State<HomePage> {
           ],
         ));
   }
-Route _createRoute_details(String jobID, String s, String s1, String s2, String s3, String s4, String s5, String s6, var imageOne,var dateStart) {
+Route _createRoute_details(var snap, var imageOne) {
   return PageRouteBuilder(
     // pageBuilder: (context, animation, secondaryAnimation) => JobDetails(jobID,s, s1,  s2,  s3,  s4,  s5,  s6),
-    pageBuilder: (context, animation, secondaryAnimation) => ShowJobDetails(jobID,s, s1,  s2,  s3,  s4,  s5,  s6, imageOne , dateStart),
+    pageBuilder: (context, animation, secondaryAnimation) => ShowJobDetails(snap, imageOne),
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       var begin = Offset(0.0, 1.0);
       var end = Offset.zero;

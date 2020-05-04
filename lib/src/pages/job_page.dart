@@ -11,7 +11,7 @@ class JobsPage extends StatelessWidget {
   ScrollController _scrollController = ScrollController();
 
   getData()async{
-    String url = "https://worky-flutter.000webhostapp.com/getData_waas.php";
+    String url = "https://worker-dot-workytest.el.r.appspot.com/";
     var res = await http.get(Uri.encodeFull(url),headers:{"Accept":"application/json"});
     var responseBody = json.decode(res.body);
     return responseBody;
