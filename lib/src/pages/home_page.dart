@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +9,7 @@ import 'package:flutter_smart_course/src/pages/job_details.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_smart_course/src/theme/color/light_color.dart';
 import 'package:flutter_smart_course/src/theme/theme.dart';
+import 'dart:convert' show utf8;
 
 class HomePage extends StatefulWidget {
     @override
@@ -27,23 +29,28 @@ class _HomePageState extends State<HomePage> {
   }
   int test = 0;
   getData()async{
-    String url = "https://worker-dot-workytest.el.r.appspot.com/";
+    String url = "http://localhost:58271/getData";
     var main = List();
     var temp = List();
-    var res = await http.get(Uri.encodeFull(url),headers:{"Accept":"application/json"});
-    List responseBody;
-    responseBody = (json.decode(res.body));
+    var httpClient = new HttpClient();
+    var uri = new Uri.https('http://localhost:58271', '/getData');
+    var request = await httpClient.getUrl(uri);
+    var response = await request.close();
+    var responseBody = await response.transform(UTF8.decoder).join();
+    // List responseBody;
+    // print(res);
+    // responseBody = (json.decode(res.body));
     print(responseBody);    
-    for(var i in responseBody){
-        if(i['jobLocation']=='Gampaha' || i['jobLocation']=='gampaha'){
-          i['jobLocation']=='Gampaha';
-          main.add(i);
-        }
-        else{
-          temp.add(i);
-        }
-      }
-      main = shuffle(main)+shuffle(temp);
+    // for(var i in responseBody){
+    //     if(i['jobLocation']=='Gampaha' || i['jobLocation']=='gampaha'){
+    //       i['jobLocation']=='Gampaha';
+    //       main.add(i);
+    //     }
+    //     else{
+    //       temp.add(i);
+    //     }
+    //   }
+    //   main = shuffle(main)+shuffle(temp);
     return main;
   }
   List shuffle(List items) {
