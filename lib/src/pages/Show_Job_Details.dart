@@ -226,7 +226,7 @@ Widget _buildBottomNavigationBar(BuildContext context) {
               children: <Widget>[
                 // getTimeBoxUI("DN", 'Day/Night'),
                 getTimeBoxUI("Seller",'UserName',12.0),
-                getTimeBoxUI( 'Date',"${snap['dateTimeStart']}",12.0),
+                getTimeBoxUI( 'Date',"${snap['dateTimeStart']}".substring(0,10),12.0),
                 getTimeBoxUI('Location', "${snap['jobLocation']}",12.0),
               ],
             ),

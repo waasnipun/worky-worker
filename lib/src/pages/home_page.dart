@@ -1,15 +1,11 @@
 import 'dart:convert';
-import 'dart:io';
 import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_smart_course/src/helper/quad_clipper.dart';
+import 'package:flutter_smart_course/src/Modules/http.dart';
 import 'package:flutter_smart_course/src/pages/Show_Job_Details.dart';
-import 'package:flutter_smart_course/src/pages/job_details.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter_smart_course/src/theme/color/light_color.dart';
 import 'package:flutter_smart_course/src/theme/theme.dart';
-import 'dart:convert' show utf8;
 
 class HomePage extends StatefulWidget {
     @override
@@ -27,32 +23,27 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     getData();
   }
+  
   int test = 0;
+
   getData()async{
-    String url = "http://localhost:58271/getData";
     var main = List();
     var temp = List();
-    var httpClient = new HttpClient();
-    var uri = new Uri.https('http://localhost:58271', '/getData');
-    var request = await httpClient.getUrl(uri);
-    var response = await request.close();
-    var responseBody = await response.transform(UTF8.decoder).join();
-    // List responseBody;
-    // print(res);
-    // responseBody = (json.decode(res.body));
-    print(responseBody);    
-    // for(var i in responseBody){
-    //     if(i['jobLocation']=='Gampaha' || i['jobLocation']=='gampaha'){
-    //       i['jobLocation']=='Gampaha';
-    //       main.add(i);
-    //     }
-    //     else{
-    //       temp.add(i);
-    //     }
-    //   }
-    //   main = shuffle(main)+shuffle(temp);
+    var responseBody = await http_get("workerHome");
+    for(var i in responseBody){
+        if(i['jobLocation']=='Gampaha' || i['jobLocation']=='gampaha'){
+          i['jobLocation']='Gampaha';
+          main.add(i);
+        }
+        else{
+          temp.add(i);
+        }
+      }
+      main = shuffle(main)+shuffle(temp);
     return main;
   }
+
+//shuffling data in a list
   List shuffle(List items) {
     var random = new Random();
     // Go through all elements.
@@ -66,6 +57,8 @@ class _HomePageState extends State<HomePage> {
     }
     return items;
   }
+
+
   Widget _header(BuildContext context) {
     var width = MediaQuery.of(context).size.width;
     return ClipRRect(
@@ -403,7 +396,7 @@ class _HomePageState extends State<HomePage> {
                     mainAxisSize: MainAxisSize.max,
                     children: <Widget>[
                       Expanded(
-                        child:_chip("${snap['jobDistrict']}", LightColor.darkOrange, height: 5),
+                        child:_chip("${snap['jobLocation']}", LightColor.darkOrange, height: 5),
                         ),
                       SizedBox(
                           width: 30,

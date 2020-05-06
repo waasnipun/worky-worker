@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_cupertino_date_picker/flutter_cupertino_date_picker.dart';
+import 'package:flutter_smart_course/src/Modules/http.dart';
 import 'package:flutter_smart_course/src/helper/image_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
@@ -161,17 +162,13 @@ class MyCustomFormState extends State<MyCustomForm> {
       images.add("Add Image");
     });
   }
-  insertData() async{
-    print("imagefile");
+
+  insertData() async {
     ImageUploadModel firstImage = images[0];
     String _imageOne =  base64Encode(firstImage.imageFile.readAsBytesSync());
-    print(_imageOne);
-    String url = "https://worker-insert-data-dot-workytest.el.r.appspot.com/";
     String _dateTimeStart = ((_dateTimeStart_.millisecondsSinceEpoch)/1000).toString();
     String _dateTimeFinish = ((_dateTimeFinish_.millisecondsSinceEpoch)/1000).toString();
-    print(_dateTimeFinish);
-    print(_dateTimeStart);
-    var res = await http.post(Uri.encodeFull(url),headers:{"Accept":"application/json"},body:{
+    var result = await http_post("createGig", {
       "jobTitle":_jobTitle.text,
       "jobType":_jobType.text,
       "jobPrice":_jobPrice.text,
@@ -180,13 +177,73 @@ class MyCustomFormState extends State<MyCustomForm> {
       "jobDescription":_jobDescription.text,
       "jobMobileNumber":_jobMobileNumber.text,
       "jobEmail":_jobEmail.text,
-      "imageUrl":_imageOne,
       "dateTimeStart":_dateTimeStart,
       "dateTimeFinish":_dateTimeFinish,
+      "imageUrl":_imageOne,      
+    });
+    if(result.ok){
+      print("Successfully made the post request!!");
     }
-    );
-    var responseBody = json.decode(res.body);
   }
+// insertData() async{
+//   var client = http.Client();
+//   ImageUploadModel firstImage = images[0];
+//   String _imageOne =  base64Encode(firstImage.imageFile.readAsBytesSync());
+//   print(_imageOne);
+//   String _dateTimeStart = ((_dateTimeStart_.millisecondsSinceEpoch)/1000).toString();
+//   String _dateTimeFinish = ((_dateTimeFinish_.millisecondsSinceEpoch)/1000).toString();
+//   print(_dateTimeFinish);
+//   print(_dateTimeStart);
+//   final Map<String, String> jsonData = {
+//         "jobTitle":"${_jobTitle.text}",
+//         "jobType":_jobType.text,
+//         "jobPrice":_jobPrice.text,
+//         "jobLocation":_jobLocation.text,
+//         "jobWorkingHours":_jobWorkingHours.text,
+//         "jobDescription":_jobDescription.text,
+//         "jobMobileNumber":_jobMobileNumber.text,
+//         "jobEmail":_jobEmail.text,
+//         "imageUrl":_imageOne,
+//         "dateTimeStart":_dateTimeStart,
+//         "dateTimeFinish":_dateTimeFinish,
+//       };
+//   var url = 'http://10.0.2.2:8000/workerHomeInsert';
+//   var response = await http.post(url, body: json.encode(jsonData));
+//   print('Response status: ${response.statusCode}');
+//   print('Response body: ${response.body}');
+
+//   print(await http.read('http://10.0.2.2:8000/workerHomeInsert'));
+// }
+
+  // insertData() async{
+  //   print("insertingData");
+  //   ImageUploadModel firstImage = images[0];
+  //   String _imageOne =  base64Encode(firstImage.imageFile.readAsBytesSync());
+  //   print(_imageOne);
+  //   String url = "http://10.0.2.2:8000/workerHomeInsert";
+  //   String _dateTimeStart = ((_dateTimeStart_.millisecondsSinceEpoch)/1000).toString();
+  //   String _dateTimeFinish = ((_dateTimeFinish_.millisecondsSinceEpoch)/1000).toString();
+  //   print(_dateTimeFinish);
+  //   print(_dateTimeStart);
+  //   var res = await http.post(Uri.encodeFull(url),headers:{"Accept":"application/json"},body:{
+  //     "jobTitle":_jobTitle.text,
+  //     "jobType":_jobType.text,
+  //     "jobPrice":_jobPrice.text,
+  //     "jobLocation":_jobLocation.text,
+  //     "jobWorkingHours":_jobWorkingHours.text,
+  //     "jobDescription":_jobDescription.text,
+  //     "jobMobileNumber":_jobMobileNumber.text,
+  //     "jobEmail":_jobEmail.text,
+  //     "imageUrl":_imageOne,
+  //     "dateTimeStart":_dateTimeStart,
+  //     "dateTimeFinish":_dateTimeFinish,
+  //   }
+  //   );
+  //   int statusCode = res.statusCode;
+  //   var responseBody = json.decode(res.body);
+  //   print("Status Code");
+  //   print(statusCode);
+  // }
   
 
   @override

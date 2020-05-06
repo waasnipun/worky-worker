@@ -1,6 +1,7 @@
 import 'dart:convert';
+import 'package:flutter_smart_course/Removed%20Stuff/job_details.dart';
+import 'package:flutter_smart_course/src/Modules/http.dart';
 import 'package:flutter_smart_course/src/pages/create_jobs.dart';
-import 'package:flutter_smart_course/src/pages/job_details.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_course/src/theme/color/light_color.dart';
@@ -11,13 +12,8 @@ class JobsPage extends StatelessWidget {
   ScrollController _scrollController = ScrollController();
 
   getData()async{
-    String url = "https://worker-dot-workytest.el.r.appspot.com/";
-    var res = await http.get(Uri.encodeFull(url),headers:{"Accept":"application/json"});
-    var responseBody = json.decode(res.body);
-    return responseBody;
-  }
-  
- 
+    return http_get("workerHome");
+  } 
   Widget _header(BuildContext context) {
     var width = MediaQuery.of(context).size.width;
     return ClipRRect(
